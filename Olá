@@ -1,0 +1,11 @@
+----------CTFs----------
+
+Repositório destinado a relatórios técnicos de Capture The Flag (CTF).
+
+Organização:
+- Cada plataforma possui seu próprio diretório
+- Cada máquina possui um README.md com o relatório técnico completo
+
+Plataformas:
+- TryHackMe
+- Hack The Box (futuro)
