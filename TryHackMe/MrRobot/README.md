@@ -199,6 +199,3 @@ Este laboratório demonstrou claramente a importância de uma metodologia sólid
 * Binário SUID mal configurado permitindo escalonamento de privilégio
 
 A conclusão bem-sucedida deste CTF reforça que os estudos realizados na Desec Security estão trazendo resultados práticos e consistentes, consolidando tanto a parte teórica quanto a prática em ambientes reais de exploração.
-
-
-Você mandou bem nesse lab.
