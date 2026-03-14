@@ -8,5 +8,5 @@ Relatórios técnicos de máquinas CTF resolvidas na plataforma **TryHackMe** du
 
 | Máquina | Dificuldade | Categoria |
 |--------|-------------|-----------|
-| Internal | Médio | Web / Linux / PrivEsc |
+| Internal | Difícil | Web / Linux / PrivEsc |
 | MrRobot | Médio | Web / Linux |
