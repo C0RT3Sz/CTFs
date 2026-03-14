@@ -1,11 +1,19 @@
-# 🧪 CTFs
+# 🧪 CTF Writeups
 
-Repositório destinado a relatórios técnicos de Capture The Flag (CTF).
+Este repositório contém relatórios técnicos de máquinas **Capture The Flag (CTF)** resolvidas durante meus estudos em **segurança ofensiva**.
 
-Organização:
-- Cada plataforma possui seu próprio diretório
-- Cada máquina possui um README.md com relatório técnico detalhado
+O objetivo deste repositório é documentar metodologia de exploração, consolidar aprendizado prático e servir como portfólio técnico.
 
-Plataformas:
+---
+
+## 📁 Organização
+
+- Cada **plataforma** possui seu próprio diretório
+- Cada **máquina** possui um `README.md` contendo o relatório técnico detalhado do laboratório
+
+---
+
+## 🖥️ Plataformas
+
 - TryHackMe
-- Hack The Box (em breve)
+- Hack The Box *(em breve)*
