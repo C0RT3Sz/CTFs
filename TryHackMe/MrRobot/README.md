@@ -5,6 +5,7 @@
 🖥️ **Máquina:** Mr. Robot
 📌 **Tipo:** CTF – Web / Linux / Privilege Escalation
 ⚙️ **Objetivo:** Obter as 3 flags da máquina
+📊 **Nível de dificuldade:** Médio
 🧠 **Base de estudo:** Conteúdo e metodologia do curso da Desec Security
 
 ---
