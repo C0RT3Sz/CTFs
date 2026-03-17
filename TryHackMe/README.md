@@ -12,4 +12,4 @@ Relatórios técnicos de máquinas CTF resolvidas na plataforma **TryHackMe** du
 | MrRobot | Médio | Web / Linux |
 | Enterprise | Difícil | Active Directory / Windows / PrivEsc |
 | Vulnnet:Active | Médio | Active Directory / Windows / PrivEsc |
-| Vulnnet:Active | Médio | Windows  / IIS / PrivEsc |
+| Relevant | Médio | Windows  / IIS / PrivEsc |
