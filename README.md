@@ -1,40 +1,32 @@
-# 🧪 CTF Writeups
+# 🧪 CTFs & Security Labs
 
-Este repositório contém relatórios técnicos de máquinas **Capture The Flag (CTF)** resolvidas durante meus estudos em **Segurança Ofensiva**.
+Este repositório reúne laboratórios práticos e relatórios técnicos desenvolvidos durante meus estudos em **Segurança da Informação**, abrangendo Segurança Ofensiva e Defensiva.
 
-O objetivo é documentar de forma estruturada o processo de exploração, consolidar conhecimento prático e servir como **portfólio técnico** para atuação em **Pentest e Red Team**.
-
----
-
-## 🧠 Metodologia
-
-Todos os laboratórios seguem a metodologia **DUNGEON**, criada para estruturar o processo de ataque de forma lógica, reproduzível e alinhada com práticas reais de testes de intrusão.
-
-### ⚔️ DUNGEON Framework
-
-| Fase               | Descrição                               |
-|--------------------|-----------------------------------------|
-| **D - Discover**   | Reconhecimento e enumeração de serviços |
-| **U - Understand** | Análise da superfície de ataque         |
-| **N - Navigate**   | Planejamento da exploração              |
-| **G - Gain Access**| Obtenção de acesso inicial              |
-| **E - Escalate**   | Escalonamento de privilégios            |
-| **O - Observe**    | Pós-exploração e coleta de evidências   |
-| **N - Narrate**    | Documentação técnica do ataque          |
-
-Essa abordagem transforma cada CTF em um processo estruturado, evitando tentativa e erro desorganizada e simulando cenários reais de **Pentest**.
+O objetivo é documentar minhas experiências, consolidar conhecimentos técnicos e registrar os processos de exploração, investigação e análise realizados em diferentes ambientes.
 
 ---
 
-## 📁 Organização do Repositório
+## 🧭 Metodologias
 
-- 📂 Cada **plataforma** possui seu próprio diretório  
-- 📄 Cada **máquina** contém um `README.md` com o relatório completo  
-- 🧾 Todos os relatórios seguem um padrão técnico consistente  
+Os laboratórios são conduzidos a partir de duas metodologias próprias, desenvolvidas para organizar minha abordagem de estudo, execução e documentação.
+
+- **DUNGEON** — Metodologia voltada à exploração e análise em Segurança Ofensiva.
+- **TEIA** — Metodologia voltada à investigação e análise de evidências em Segurança Defensiva.
+
+📂 [Conheça as metodologias](Metodologias/)
 
 ---
 
-## 🖥️ Plataformas
+## 📁 Organização
 
-- **TryHackMe**
-- **Hack The Box** *(em breve)*
+- **Metodologias/** — Documentação dos métodos DUNGEON e TEIA.
+- **TryHackMe/** — Relatórios de máquinas e desafios práticos.
+- **CyberDefenders/** — Relatórios de laboratórios de investigação e análise defensiva.
+
+---
+
+## 🎯 Objetivo
+
+Desenvolver habilidades práticas em Segurança da Informação por meio da exploração de ambientes, investigação de evidências, análise técnica, resolução de problemas e documentação dos aprendizados.
+
+Cada laboratório representa uma oportunidade de aprofundar conhecimentos, compreender diferentes cenários e evoluir tecnicamente.
