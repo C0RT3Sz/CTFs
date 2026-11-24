@@ -1,8 +1,10 @@
 # 🧪 CTFs & Security Labs
 
-Este repositório reúne laboratórios práticos e relatórios técnicos desenvolvidos durante meus estudos em **Segurança da Informação**, abrangendo Segurança Ofensiva e Defensiva.
+Este repositório reúne laboratórios práticos e relatórios técnicos desenvolvidos durante meus estudos em **Segurança da Informação**, abrangendo principalmente Segurança Defensiva, além de atividades em Segurança Ofensiva.
 
-O objetivo é documentar minhas experiências, consolidar conhecimentos técnicos e registrar os processos de exploração, investigação e análise realizados em diferentes ambientes.
+O objetivo é documentar minhas experiências, consolidar conhecimentos técnicos e registrar processos de investigação, análise de evidências e exploração de ambientes.
+
+Meu foco principal está em **Segurança Defensiva**, especialmente investigação, análise de tráfego, identificação de ameaças e compreensão de incidentes. Os laboratórios de Segurança Ofensiva complementam esse aprendizado, permitindo compreender técnicas, vetores e mecanismos de ataque a partir de uma perspectiva prática.
 
 ---
 
@@ -10,8 +12,8 @@ O objetivo é documentar minhas experiências, consolidar conhecimentos técnico
 
 Os laboratórios são conduzidos a partir de duas metodologias próprias, desenvolvidas para organizar minha abordagem de estudo, execução e documentação.
 
-- **DUNGEON** — Metodologia voltada à exploração e análise em Segurança Ofensiva.
 - **TEIA** — Metodologia voltada à investigação e análise de evidências em Segurança Defensiva.
+- **DUNGEON** — Metodologia voltada à exploração e análise em Segurança Ofensiva.
 
 📂 [Conheça as metodologias](Metodologias/)
 
@@ -19,14 +21,14 @@ Os laboratórios são conduzidos a partir de duas metodologias próprias, desenv
 
 ## 📁 Organização
 
-- **Metodologias/** — Documentação dos métodos DUNGEON e TEIA.
-- **TryHackMe/** — Relatórios de máquinas e desafios práticos.
+- **Metodologias/** — Documentação dos métodos TEIA e DUNGEON.
 - **CyberDefenders/** — Relatórios de laboratórios de investigação e análise defensiva.
+- **TryHackMe/** — Relatórios de máquinas e desafios práticos.
 
 ---
 
 ## 🎯 Objetivo
 
-Desenvolver habilidades práticas em Segurança da Informação por meio da exploração de ambientes, investigação de evidências, análise técnica, resolução de problemas e documentação dos aprendizados.
+Desenvolver habilidades práticas em Segurança da Informação, com ênfase em investigação, análise, correlação de evidências, compreensão de ameaças e atividades de Blue Team.
 
-Cada laboratório representa uma oportunidade de aprofundar conhecimentos, compreender diferentes cenários e evoluir tecnicamente.
+A prática ofensiva complementa essa jornada, contribuindo para compreender como ataques são conduzidos, quais mecanismos são explorados e como esse conhecimento pode apoiar a investigação e a atuação defensiva.
